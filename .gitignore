@@ -39,6 +39,25 @@ MobaClient/[Aa]ssets/[Ss]treamingAssets/aa/*
 
 
 # =========================================================================
+# Rules for MobaClient/Assets/RPGHero/SRP/FreeRPGHeroesLW Project
+# =========================================================================
+MobaClient/Assets/RPGHero/SRP/FreeRPGHeroesLW/[Ll]ibrary/
+MobaClient/Assets/RPGHero/SRP/FreeRPGHeroesLW/[Tt]emp/
+MobaClient/Assets/RPGHero/SRP/FreeRPGHeroesLW/[Oo]bj/
+MobaClient/Assets/RPGHero/SRP/FreeRPGHeroesLW/[Bb]uild/
+MobaClient/Assets/RPGHero/SRP/FreeRPGHeroesLW/[Bb]uilds/
+MobaClient/Assets/RPGHero/SRP/FreeRPGHeroesLW/[Ll]ogs/
+MobaClient/Assets/RPGHero/SRP/FreeRPGHeroesLW/[Uu]ser[Ss]ettings/
+MobaClient/Assets/RPGHero/SRP/FreeRPGHeroesLW/[Mm]emoryCaptures/
+MobaClient/Assets/RPGHero/SRP/FreeRPGHeroesLW/[Rr]ecordings/
+# MobaClient/Assets/RPGHero/SRP/FreeRPGHeroesLW/[Aa]ssets/AssetStoreTools*
+MobaClient/Assets/RPGHero/SRP/FreeRPGHeroesLW/[Aa]ssets/Plugins/Editor/JetBrains*
+MobaClient/Assets/RPGHero/SRP/FreeRPGHeroesLW/[Aa]ssets/[Aa]ddressable[Aa]ssets[Dd]ata/*/*.bin*
+MobaClient/Assets/RPGHero/SRP/FreeRPGHeroesLW/[Aa]ssets/[Ss]treamingAssets/aa.meta
+MobaClient/Assets/RPGHero/SRP/FreeRPGHeroesLW/[Aa]ssets/[Ss]treamingAssets/aa/*
+
+
+# =========================================================================
 # General rules that apply to BOTH projects
 # =========================================================================
 

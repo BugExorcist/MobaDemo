@@ -4,6 +4,7 @@ using System.Collections.Generic;
 using System.Net;
 using System.Net.Sockets;
 using System.Threading;
+using UnityEditor.Experimental.GraphView;
 using UnityEngine;
 
 public class ServerTcp
@@ -104,10 +105,37 @@ public class ServerTcp
             {
                 //Debug.Log("_socketName是否连接:" + myClientSocket.Connected);
                 //通过clientSocket接收数据  
-                if (myClientSocket.Poll(1000, SelectMode.SelectRead))// 检测socket是否有数据可读
+
+                // ****对于 SelectRead，如果已调用 Socket.Listen()
+                // 且连接处于挂起状态、数据可供读取，或者连接已关闭、重置或终止，则返回 true
+                // 也就是说 有消息会返回true  服务器断开也会返回true
+                // 对于数据可供读取 是客服端发送消息频率太高，超出了服务器处理缓冲区的极限（缓冲区有数据堆积）
+                // 又收到了客户端发送的消息 即 数据可供读取，但处理不过来，会返回true
+
+                // 此处问题的详细描述:
+                // https://blog.csdn.net/m0_72474501/article/details/150538032
+
+                // 写法1：
+                //if (myClientSocket.Poll(1000, SelectMode.SelectRead))// 检测socket是否有数据可读
+                //{
+                //    if (myClientSocket.Available == 0)
+                //    {
+                //        // Poll + Available == 0 → 真正关闭
+                //        // Poll + Available > 0 → 有数据，继续处理
+                //        // Poll == false → 没数据，循环等待
+
+                //        throw new Exception("客户端关闭了1~");
+                //    }
+                //    // 否则说明只是有数据可读，继续走下面的 Receive
+                //}
+
+                // 写法2：
+                if (!myClientSocket.Poll(-1, SelectMode.SelectRead))// -1 永远阻塞 直到读到数据
                 {
                     throw new Exception("客户端关闭了1~");
                 }
+
+
 
                 int _size = myClientSocket.Receive(resultData);// 接收数据写入缓存区
 

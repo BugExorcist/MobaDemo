@@ -4,147 +4,175 @@ using System.Collections.Generic;
 using PBCommon;
 using PBBattle;
 using PBLogin;
-public class UdpPB {
-	//返回给游戏的delegate
-	public delegate void DelegateReceiveMessage<T>(T message);
+public class UdpPB
+{
+    //返回给游戏的delegate
+    public delegate void DelegateReceiveMessage<T>(T message);
 
-	public DelegateReceiveMessage<UdpBattleStart> mes_battle_start{ get; set;}
-	public DelegateReceiveMessage<UdpDownFrameOperations> mes_frame_operation{ get; set;}
-	public DelegateReceiveMessage<UdpDownDeltaFrames> mes_delta_frame_data{ get; set;}
-	public DelegateReceiveMessage<UdpDownGameOver> mes_down_game_over{ get; set;}
+    public DelegateReceiveMessage<UdpBattleStart> mes_battle_start { get; set; }
+    public DelegateReceiveMessage<UdpDownFrameOperations> mes_frame_operation { get; set; }
+    public DelegateReceiveMessage<UdpDownDeltaFrames> mes_delta_frame_data { get; set; }
+    public DelegateReceiveMessage<UdpDownGameOver> mes_down_game_over { get; set; }
 
-	private static UdpPB singleInstance;
-	private MyUdp _upd;
-	private int mesNum = 0; // 计数器
-	public static UdpPB Instance()
-	{
-		// 如果类的实例不存在则创建，否则直接返回
-		if (singleInstance == null)
-		{
-			singleInstance = new UdpPB();
-		}
-		return singleInstance;
-	}
+    private static UdpPB singleInstance;
+    private MyUdp _upd;
+    private int mesNum = 0; // 计数器
+    public static UdpPB Instance()
+    {
+        // 如果类的实例不存在则创建，否则直接返回
+        if (singleInstance == null)
+        {
+            singleInstance = new UdpPB();
+        }
+        return singleInstance;
+    }
 
-	private UdpPB()
-	{
+    private UdpPB()
+    {
 
-	}
+    }
 
-	public void Destory(){
-		singleInstance = null;
+    public void Destory()
+    {
+        singleInstance = null;
 
-		if (_upd != null) {
-			_upd.EndClientUdp ();
-			_upd = null;
-		}
+        if (_upd != null)
+        {
+            _upd.EndClientUdp();
+            _upd = null;
+        }
 
-		mes_frame_operation = null;
-		mes_delta_frame_data = null;
-		mes_down_game_over = null;
-	}
+        mes_frame_operation = null;
+        mes_delta_frame_data = null;
+        mes_down_game_over = null;
+    }
 
+    public void MyDestory()
+    {
+        if (_upd != null)
+        {
+            _upd.MyEndClientUdp();
+            _upd = null;
+        }
+    }
 
-	public void StartClientUdp(){
-		mesNum = 0;
-		_upd = new MyUdp ();
-		_upd.StartClientUdp (NetGlobal.Instance().serverIP);
+    /// <summary>
+    /// 启动客户端Udp
+    /// </summary>
+    public void StartClientUdp()
+    {   // 启动的时机在BattleCon的Start()中，开启一场战斗后，会启动Udp服务器
+        mesNum = 0;
+        _upd = new MyUdp();
+        _upd.StartClientUdp(NetGlobal.Instance().serverIP);
 
-		_upd.delegate_analyze_message = AnalyzeMessage;
-	}
-		
-		
-	public void SendBattleReady(int _uid, int _battleID){
-		UdpBattleReady _ready = new UdpBattleReady ();
-		_ready.uid = _uid;
-		_ready.battleID = _battleID;
-		Debug.Log("SendBattleReady   _upd== " + _upd);
-		_upd.SendMessage (CSData.GetSendMessage<UdpBattleReady>(_ready,CSID.UDP_BATTLE_READY));
-	}
-
-    // 发送玩家操作
-	public void SendOperation(){
-		mesNum++;
-	
-		UdpUpPlayerOperations _up = new UdpUpPlayerOperations ();
-		_up.mesID = mesNum;  // 操作序列号
-
-		_up.operation = BattleData.Instance.selfOperation;
- 
-		_upd.SendMessage (CSData.GetSendMessage<UdpUpPlayerOperations>(_up,CSID.UDP_UP_PLAYER_OPERATIONS));
-	}
+        _upd.delegate_analyze_message = AnalyzeMessage;
+    }
 
 
-	public PlayerOperation ClonePlayerOperation(){
-		PlayerOperation _operation = new PlayerOperation ();
-		_operation.battleID = BattleData.Instance.selfOperation.battleID;
-		_operation.move = BattleData.Instance.selfOperation.move;
-		_operation.operationID = BattleData.Instance.selfOperation.operationID;
-		_operation.rightOperation = BattleData.Instance.selfOperation.rightOperation;
-		_operation.operationValue1 = BattleData.Instance.selfOperation.operationValue1;
-		_operation.operationValue2 = BattleData.Instance.selfOperation.operationValue2;
-		return _operation;
-	}
+    public void SendBattleReady(int _uid, int _battleID)
+    {
+        UdpBattleReady _ready = new UdpBattleReady();
+        _ready.uid = _uid;
+        _ready.battleID = _battleID;
+        Debug.Log("SendBattleReady   _upd== " + _upd);
+        _upd.SendMessage(CSData.GetSendMessage<UdpBattleReady>(_ready, CSID.UDP_BATTLE_READY));
+    }
 
-	public void SendDeltaFrames(int _battleID,List<int> _frames){
+    /// <summary>
+    /// 发送一帧玩家操作到服务器
+    /// </summary>
+    public void SendOperation()
+    {
+        mesNum++;// 操作序列号
+
+        UdpUpPlayerOperations _up = new UdpUpPlayerOperations();
+        _up.mesID = mesNum;  // 操作序列号
+
+        _up.operation = BattleData.Instance.selfOperation;// 遥感方向
+
+        _upd.SendMessage(CSData.GetSendMessage<UdpUpPlayerOperations>(_up, CSID.UDP_UP_PLAYER_OPERATIONS));
+    }
+
+
+    public PlayerOperation ClonePlayerOperation()
+    {
+        PlayerOperation _operation = new PlayerOperation();
+        _operation.battleID = BattleData.Instance.selfOperation.battleID;
+        _operation.move = BattleData.Instance.selfOperation.move;
+        _operation.operationID = BattleData.Instance.selfOperation.operationID;
+        _operation.rightOperation = BattleData.Instance.selfOperation.rightOperation;
+        _operation.operationValue1 = BattleData.Instance.selfOperation.operationValue1;
+        _operation.operationValue2 = BattleData.Instance.selfOperation.operationValue2;
+        return _operation;
+    }
+
+    public void SendDeltaFrames(int _battleID, List<int> _frames)
+    {
 
         Debug.Log("SendDeltaFrames 111111111111111111111 ");
-		UdpUpDeltaFrames _framespb = new UdpUpDeltaFrames ();
-	
-		_framespb.battleID = _battleID;
-		_framespb.frames.AddRange(_frames);
+        UdpUpDeltaFrames _framespb = new UdpUpDeltaFrames();
 
-		_upd.SendMessage (CSData.GetSendMessage<UdpUpDeltaFrames>(_framespb,CSID.UDP_UP_DELTA_FRAMES));
-	}
+        _framespb.battleID = _battleID;
+        _framespb.frames.AddRange(_frames);
 
-
-	public void SendGameOver(int _battleID){
-		UdpUpGameOver _gameOver = new UdpUpGameOver ();
-		_gameOver.battleID = _battleID;
-		_upd.SendMessage (CSData.GetSendMessage<UdpUpGameOver>(_gameOver,CSID.UDP_UP_GAME_OVER));
-	}
+        _upd.SendMessage(CSData.GetSendMessage<UdpUpDeltaFrames>(_framespb, CSID.UDP_UP_DELTA_FRAMES));
+    }
 
 
-	public void AnalyzeMessage(SCID messageId,byte[] bodyData){
-        
-   
-		switch (messageId) {
-		case SCID.UDP_BATTLE_START:
-			{
-				UdpBattleStart pb_ReceiveMes = CSData.DeserializeData<UdpBattleStart>(bodyData);
-				NetGlobal.Instance ().AddAction (()=>{
-					mes_battle_start(pb_ReceiveMes);
-				});
-			}
-			break;
-		case SCID.UDP_DOWN_FRAME_OPERATIONS: //UDP_UP_PLAYER_OPERATIONS
-                {
-                  //  Debug.Log("2222222");
+    public void SendGameOver(int _battleID)
+    {
+        UdpUpGameOver _gameOver = new UdpUpGameOver();
+        _gameOver.battleID = _battleID;
+        _upd.SendMessage(CSData.GetSendMessage<UdpUpGameOver>(_gameOver, CSID.UDP_UP_GAME_OVER));
+    }
+
+
+    public void AnalyzeMessage(SCID messageId, byte[] bodyData)
+    {
+
+
+        switch (messageId)
+        {
+            case SCID.UDP_BATTLE_START:
+                {   // 战斗开始
+                    UdpBattleStart pb_ReceiveMes = CSData.DeserializeData<UdpBattleStart>(bodyData);
+                    NetGlobal.Instance().AddAction(() =>
+                    {
+                        mes_battle_start(pb_ReceiveMes);
+                    });
+                }
+                break;
+            case SCID.UDP_DOWN_FRAME_OPERATIONS: //UDP_UP_PLAYER_OPERATIONS
+                {   // 帧操作
+                    //  Debug.Log("2222222");
                     UdpDownFrameOperations pb_ReceiveMes = CSData.DeserializeData<UdpDownFrameOperations>(bodyData);
-				NetGlobal.Instance ().AddAction (()=>{
-					mes_frame_operation(pb_ReceiveMes);
-				});
-			}
-			break;
-		case SCID.UDP_DOWN_DELTA_FRAMES:
-			{
+                    NetGlobal.Instance().AddAction(() =>
+                    {
+                        mes_frame_operation(pb_ReceiveMes);
+                    });
+                }
+                break;
+            case SCID.UDP_DOWN_DELTA_FRAMES:
+                {
                     Debug.Log("111111111111111111");
-				UdpDownDeltaFrames pb_ReceiveMes = CSData.DeserializeData<UdpDownDeltaFrames>(bodyData);
-				NetGlobal.Instance ().AddAction (()=>{
-					mes_delta_frame_data(pb_ReceiveMes);
-				});
-			}
-			break;
-		case SCID.UDP_DOWN_GAME_OVER:
-			{
-				UdpDownGameOver pb_ReceiveMes = CSData.DeserializeData<UdpDownGameOver>(bodyData);
-				NetGlobal.Instance ().AddAction (()=>{
-					mes_down_game_over(pb_ReceiveMes);
-				});
-			}
-			break;
-		default:
-			break;
-		}
-	}
+                    UdpDownDeltaFrames pb_ReceiveMes = CSData.DeserializeData<UdpDownDeltaFrames>(bodyData);
+                    NetGlobal.Instance().AddAction(() =>
+                    {
+                        mes_delta_frame_data(pb_ReceiveMes);
+                    });
+                }
+                break;
+            case SCID.UDP_DOWN_GAME_OVER:
+                {
+                    UdpDownGameOver pb_ReceiveMes = CSData.DeserializeData<UdpDownGameOver>(bodyData);
+                    NetGlobal.Instance().AddAction(() =>
+                    {
+                        mes_down_game_over(pb_ReceiveMes);
+                    });
+                }
+                break;
+            default:
+                break;
+        }
+    }
 }

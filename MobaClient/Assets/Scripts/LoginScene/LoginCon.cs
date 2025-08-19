@@ -56,7 +56,7 @@ public class LoginCon : MonoBehaviour
         if (_mes.result)
         {
             NetGlobal.Instance().userUid = _mes.uid;
-            NetGlobal.Instance().udpSendPort = _mes.udpPort;
+            NetGlobal.Instance().udpSendPort = _mes.udpPort; // tcp登录成功，记录udp端口
             Debug.Log("登录成功～～～" + NetGlobal.Instance().userUid);
             ClearSceneData.LoadScene(GameConfig.mainScene);
         }

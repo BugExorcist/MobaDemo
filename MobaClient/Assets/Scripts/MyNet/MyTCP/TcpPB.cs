@@ -47,7 +47,7 @@ public class TcpPB
         switch (messageId)
         {
             case SCID.TCP_RESPONSE_LOGIN:
-                {
+                {   // 登录结果
                     TcpResponseLogin pb_ReceiveMes = CSData.DeserializeData<TcpResponseLogin>(bodyData);
                     // 把消息放到线程队列中，等待处理
                     NetGlobal.Instance().AddAction(() =>
@@ -57,7 +57,7 @@ public class TcpPB
                 }
                 break;
             case SCID.TCP_RESPONSE_REQUEST_MATCH:
-                {
+                {   // 匹配结果
                     TcpResponseRequestMatch pb_ReceiveMes = CSData.DeserializeData<TcpResponseRequestMatch>(bodyData);
                     NetGlobal.Instance().AddAction(() =>
                     {
@@ -66,7 +66,7 @@ public class TcpPB
                 }
                 break;
             case SCID.TCP_RESPONSE_CANCEL_MATCH:
-                {
+                {   // 取消匹配结果
                     TcpResponseCancelMatch pb_ReceiveMes = CSData.DeserializeData<TcpResponseCancelMatch>(bodyData);
                     NetGlobal.Instance().AddAction(() =>
                     {
@@ -75,7 +75,7 @@ public class TcpPB
                 }
                 break;
             case SCID.TCP_ENTER_BATTLE:
-                {
+                {   // 进入战斗
                     TcpEnterBattle pb_ReceiveMes = CSData.DeserializeData<TcpEnterBattle>(bodyData);
                     NetGlobal.Instance().AddAction(() =>
                     {

@@ -34,6 +34,9 @@ public class UdpManager {
 	
 	}
 
+/// <summary>
+/// 创建udp客户端
+/// </summary>
 	void CreatUpd(){
 		_udpClient = new UdpClient ();
 		IPEndPoint endpoint = new IPEndPoint(IPAddress.Parse(NetGlobal.Instance().serverIP), NetGlobal.Instance().udpSendPort);

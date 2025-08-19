@@ -69,6 +69,7 @@ public class MainCon : MonoBehaviour
         Debug.Log(_mes.battleUserInfo + "进入战场" + Time.realtimeSinceStartup);
         BattleData.Instance.UpdateBattleInfo(_mes.randSeed, _mes.battleUserInfo);
 
+        ClearSceneData.LoadScene(GameConfig.battleScene);// 切换战斗场景
     }
 
 

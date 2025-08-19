@@ -12,7 +12,7 @@ public class NetGlobal
     private Mutex mutex_actionList = new Mutex();
 
     public string serverIP;
-    public int udpSendPort;
+    public int udpSendPort;// 服务器的udp端口
     public int userUid;
     public static NetGlobal Instance()
     {
